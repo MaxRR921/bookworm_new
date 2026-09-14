@@ -1,0 +1,140 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>BookWorm LightRAG probe graph</title>
+<style>
+  :root { --bg:#12131a; --panel:#1c1e28; --line:#2e3140; --text:#e6e7ee; --dim:#8b8fa3; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:13px/1.5 ui-sans-serif,-apple-system,"Segoe UI",sans-serif; overflow:hidden; }
+  canvas { display:block; cursor:grab; }
+  canvas.drag { cursor:grabbing; }
+  #side { position:fixed; top:0; right:0; width:330px; height:100vh; overflow-y:auto;
+          background:var(--panel); border-left:1px solid var(--line); padding:18px; }
+  #side h2 { margin:0 0 2px; font-size:17px; }
+  #side .type { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  #side p { color:#c6c9d6; }
+  #side h3 { font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+             color:var(--dim); margin:18px 0 6px; border-top:1px solid var(--line); padding-top:12px; }
+  .rel { margin-bottom:9px; padding-left:9px; border-left:2px solid var(--line); }
+  .rel b { color:#e6e7ee; font-weight:600; }
+  .rel span { color:var(--dim); display:block; font-size:12px; }
+  #legend { position:fixed; bottom:16px; left:16px; background:var(--panel);
+            border:1px solid var(--line); border-radius:7px; padding:11px 13px; }
+  #legend div { display:flex; align-items:center; gap:7px; margin:3px 0; }
+  #legend i { width:10px; height:10px; border-radius:50%; display:block; }
+  #hint { position:fixed; top:16px; left:16px; color:var(--dim); }
+  input { width:100%; background:#141620; border:1px solid var(--line); border-radius:5px;
+          color:var(--text); padding:7px 9px; margin-bottom:14px; font-size:13px; }
+  input:focus { outline:none; border-color:#5b6bd6; }
+</style>
+<canvas id="c"></canvas>
+<div id="legend"></div>
+<div id="hint">drag to pan · scroll to zoom · click an entity</div>
+<div id="side">
+  <input id="q" placeholder="search entities…" autocomplete="off">
+  <div id="detail"><p style="color:var(--dim)">Click any node to inspect it.<br><br>
+  Colour = which chapters the entity was extracted from. Purple nodes span more than one
+  chapter — those are the merges the cumulative-graph design depends on.</p></div>
+</div>
+<script>
+const DATA = __DATA__;
+const COLORS = { ch001:"#4da3ff", ch002:"#3fc48a", ch003:"#f0a43a", multi:"#a97bff", none:"#6b7086" };
+const key = o => o.chapters.length > 1 ? "multi" : (o.chapters[0] || "none");
+
+const N = DATA.nodes, E = DATA.edges;
+N.forEach((n,i) => { const a = i/N.length*Math.PI*2;
+  n.x = Math.cos(a)*260 + (Math.random()-.5)*90; n.y = Math.sin(a)*260 + (Math.random()-.5)*90;
+  n.vx = n.vy = 0; n.r = 4 + Math.sqrt(n.deg)*2.4; n.c = COLORS[key(n)]; });
+E.forEach(e => { e.a = N[e.s]; e.b = N[e.t]; });
+
+const cv = document.getElementById("c"), cx = cv.getContext("2d");
+let W, H, scale = 1, ox = 0, oy = 0, sel = null, hover = null, match = null;
+const resize = () => { W = cv.width = innerWidth - 330; H = cv.height = innerHeight; };
+addEventListener("resize", resize); resize();
+
+// ponytail: O(n²) repulsion — fine at 168 nodes, swap in a quadtree past ~2k.
+function step() {
+  for (let i = 0; i < N.length; i++) {
+    const p = N[i];
+    for (let j = i+1; j < N.length; j++) {
+      const q = N[j], dx = q.x-p.x, dy = q.y-p.y, d2 = dx*dx + dy*dy || .01;
+      const f = 900 / d2, fx = dx*f, fy = dy*f;
+      p.vx -= fx; p.vy -= fy; q.vx += fx; q.vy += fy;
+    }
+    p.vx -= p.x * 0.0022; p.vy -= p.y * 0.0022;   // gravity to centre
+  }
+  for (const e of E) {
+    const dx = e.b.x-e.a.x, dy = e.b.y-e.a.y, d = Math.hypot(dx,dy) || .01;
+    const f = (d - 70) * 0.012, fx = dx/d*f, fy = dy/d*f;
+    e.a.vx += fx; e.a.vy += fy; e.b.vx -= fx; e.b.vy -= fy;
+  }
+  for (const p of N) {
+    if (p === drag) continue;
+    p.vx *= .82; p.vy *= .82; p.x += p.vx; p.y += p.vy;
+  }
+}
+
+function draw() {
+  step();
+  cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,W,H);
+  cx.setTransform(scale,0,0,scale, W/2 + ox, H/2 + oy);
+  cx.lineWidth = 1/scale;
+  for (const e of E) {
+    const lit = sel && (e.a === sel || e.b === sel);
+    cx.strokeStyle = lit ? "#7d8bff" : "rgba(255,255,255,.07)";
+    cx.beginPath(); cx.moveTo(e.a.x, e.a.y); cx.lineTo(e.b.x, e.b.y); cx.stroke();
+  }
+  for (const p of N) {
+    const dim = match && !match.has(p);
+    cx.globalAlpha = dim ? .15 : 1;
+    cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7);
+    cx.fillStyle = p.c; cx.fill();
+    if (p === sel || p === hover) { cx.strokeStyle = "#fff"; cx.lineWidth = 2/scale; cx.stroke(); cx.lineWidth = 1/scale; }
+    if (p.deg > 5 || p === sel || p === hover || scale > 1.6) {
+      cx.fillStyle = "#e6e7ee"; cx.font = `${11/scale}px ui-sans-serif,sans-serif`;
+      cx.fillText(p.id, p.x + p.r + 3/scale, p.y + 3.5/scale);
+    }
+    cx.globalAlpha = 1;
+  }
+  requestAnimationFrame(draw);
+}
+
+const at = ev => ({ x: (ev.clientX - W/2 - ox)/scale, y: (ev.clientY - H/2 - oy)/scale });
+const pick = ev => { const {x,y} = at(ev);
+  return N.find(p => (p.x-x)**2 + (p.y-y)**2 < (p.r + 5/scale)**2); };
+
+let drag = null, pan = null;
+cv.onmousedown = ev => { drag = pick(ev); if (!drag) pan = { x: ev.clientX - ox, y: ev.clientY - oy }; cv.classList.add("drag"); };
+cv.onmousemove = ev => {
+  if (drag) { const {x,y} = at(ev); drag.x = x; drag.y = y; drag.vx = drag.vy = 0; }
+  else if (pan) { ox = ev.clientX - pan.x; oy = ev.clientY - pan.y; }
+  else { hover = pick(ev); }
+};
+cv.onmouseup = ev => { if (drag && !pan) { const hit = pick(ev); if (hit === drag) show(hit); }
+  drag = pan = null; cv.classList.remove("drag"); };
+cv.onwheel = ev => { ev.preventDefault();
+  const f = Math.exp(-ev.deltaY * .0015); scale = Math.min(6, Math.max(.15, scale * f)); };
+
+function show(p) {
+  sel = p;
+  const rels = E.filter(e => e.a === p || e.b === p)
+    .map(e => `<div class="rel"><b>${e.a === p ? e.b.id : e.a.id}</b>
+               <span>${(e.desc || "").split("<SEP>").join(" · ")}</span></div>`).join("");
+  document.getElementById("detail").innerHTML = `
+    <div class="type">${p.type}</div><h2>${p.id}</h2>
+    <div class="type" style="color:${p.c}">${p.chapters.join(" · ") || "no chapter label"}</div>
+    <p>${(p.desc || "").split("<SEP>").join("<br><br>")}</p>
+    <h3>${rels ? "Relations (" + (rels.match(/class="rel"/g)||[]).length + ")" : "No relations"}</h3>${rels}`;
+}
+
+document.getElementById("q").oninput = ev => {
+  const v = ev.target.value.trim().toLowerCase();
+  match = v ? new Set(N.filter(n => n.id.toLowerCase().includes(v)
+                              || (n.desc || "").toLowerCase().includes(v))) : null;
+};
+document.getElementById("legend").innerHTML = Object.entries(COLORS)
+  .map(([k,c]) => `<div><i style="background:${c}"></i>${
+    k === "multi" ? "spans chapters" : k === "none" ? "unlabelled" : k}
+    <span style="color:var(--dim)">${N.filter(n => key(n) === k).length}</span></div>`).join("");
+draw();
+</script>

@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.env
+.venv/
+probe_kg/
+probe_out/
+gatsby.txt
+graph.html
+.DS_Store
+node_modules/
