@@ -1,9 +1,25 @@
 # 04 · Chapter progress spine
 
-**Status:** queued
+**Status:** testing
+**Flag:** `EXPERIMENTS.spine` in `src/lib/experiments.ts`
 **Impeccable command:** `delight`
 
 ## Idea
-A slim "book spine" strip showing all 9 chapters, with yours marked and later ones locked, so spoiler-gating is visible at a glance.
+Spoiler-gating made visible. Under the chapter title, "Chapter 5 of 9" gets a row of nine small book spines, one per chapter:
+- **Read chapters:** solid.
+- **Your chapter:** taller, in the ribbon red, since that red already means "where you are".
+- **Later chapters:** hatched and empty, because their discussion is locked until you reach them.
+
+The text reads "Chapter 5 of 9 · 4 locked". Tapping the strip opens the chapter picker. Hovering a spine shows that chapter's title.
+
+**Chapter picker:** every row carries the same spine beside its number. Rows for read chapters are solid, your row is red and highlighted, and later chapters are hatched.
+
+## Screenshots
+- [Light](shots/04-spine-light.png)
+- [Dark](shots/04-spine-dark.png)
+- [Chapter picker](shots/04-spine-picker.png)
+
+To compare with the base look, set `spine: false` in `src/lib/experiments.ts`.
 
 ## Notes
+<!-- your feedback here -->

@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Lock, Plus, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { Composer } from "@/components/bw/Composer";
-import { ReaderPage } from "@/components/bw/Shell";
+import { ChapterSpine, ReaderPage } from "@/components/bw/Shell";
 import { DiscussionCard } from "@/components/bw/FeedFilters";
 import { MomentsFeed } from "@/components/bw/MomentsFeed";
 import { CHAPTERS } from "@/data/bookworm";
 import { filterPosts, isPostVisible, visibleEvents } from "@/lib/gating";
+import { EXPERIMENTS } from "@/lib/experiments";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/read")({
@@ -63,7 +64,9 @@ function ChapterView() {
 
       <section className="mb-5">
         <h1 className="text-[28px] font-bold leading-tight">{info.title}</h1>
-        <p className="mt-1 text-[13px] font-medium text-muted-foreground">Chapter {vc} of {CHAPTERS.length}</p>
+        {EXPERIMENTS.spine
+          ? <ChapterSpine reached={ch} current={vc} onClick={() => s.setPickerOpen(true)} />
+          : <p className="mt-1 text-[13px] font-medium text-muted-foreground">Chapter {vc} of {CHAPTERS.length}</p>}
         <p className="mt-3 max-w-[68ch] text-[15px] leading-6 text-foreground/80">{info.recap}</p>
       </section>
 
@@ -93,3 +96,4 @@ function ChapterView() {
     </>
   );
 }
+

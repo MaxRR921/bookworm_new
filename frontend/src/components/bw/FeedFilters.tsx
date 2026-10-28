@@ -1,6 +1,5 @@
 import { Rows3, X } from "lucide-react";
 import type { BookEvent } from "@/data/bookworm";
-import { EXPERIMENTS } from "@/lib/experiments";
 import { cn } from "@/lib/utils";
 
 /** Says what the feed shows — all discussion, or the selected moment as a removable pill — and holds the "Group topics" switch. */
@@ -17,9 +16,8 @@ export function DiscussionCard({ compact, onCompact, event, clear, shown, total 
       {event ? (
         <>
           <button key={event.id} onClick={clear} aria-label={`Remove ${event.title} filter`}
-            style={EXPERIMENTS.ribbon ? { clipPath: "polygon(0 0, 100% 0, calc(100% - 9px) 50%, 100% 100%, 0 100%)" } : undefined}
-            className={cn("inline-flex h-8 min-w-0 items-center gap-1.5 text-[13px] font-semibold transition-colors",
-              EXPERIMENTS.ribbon ? "ribbon-unfurl rounded-l-md bg-ribbon pl-3 pr-5 text-ribbon-foreground hover:bg-ribbon/90" : "rounded-full bg-primary pl-3 pr-2.5 text-primary-foreground hover:bg-primary/90")}>
+            style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 9px) 50%, 100% 100%, 0 100%)" }}
+            className="ribbon-unfurl inline-flex h-8 min-w-0 items-center gap-1.5 rounded-l-md bg-ribbon pl-3 pr-5 text-[13px] font-semibold text-ribbon-foreground transition-colors hover:bg-ribbon/90">
             <span className="truncate">{event.title}</span> <X size={14} className="shrink-0" />
           </button>
           <span className="shrink-0 text-[13px] text-muted-foreground tabular-nums">{shown} of {total} posts</span>

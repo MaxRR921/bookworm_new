@@ -1,9 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { CirclePlus, Lock, MessageCircle, Sparkles } from "lucide-react";
+import { CirclePlus, MessageCircle, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { Post, Reply } from "@/data/bookworm";
 import { splitReplies } from "@/lib/gating";
-import { EXPERIMENTS } from "@/lib/experiments";
 import { useStore } from "@/lib/store";
 import { PredictionBar } from "./PostCard";
 import { eventById, ReactionBar, UserAvatar } from "./ui";
@@ -74,9 +73,7 @@ export function ThreadPost({ post, showChapter, tags, onTag }: {
                 {visible.map((r) => <ThreadReply key={r.id} reply={r} />)}
                 {hidden.length > 0 && (
                   <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    {EXPERIMENTS.ribbon
-                      ? <span aria-hidden className="h-3 w-2 bg-ribbon" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)" }} />
-                      : <Lock size={12} />} {hidden.length} more {hidden.length === 1 ? "reply unlocks" : "replies unlock"} at Chapter {nextUnlock}
+                    <span aria-hidden className="h-3 w-2 bg-ribbon" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)" }} /> {hidden.length} more {hidden.length === 1 ? "reply unlocks" : "replies unlock"} at Chapter {nextUnlock}
                   </p>
                 )}
               </div>

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen, ChevronDown, Moon, Sun } from "lucide-react";
 import type { ReactNode } from "react";
 import { BOOK, CHAPTERS } from "@/data/bookworm";
+import { EXPERIMENTS } from "@/lib/experiments";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Modal } from "./ui";
@@ -18,13 +19,40 @@ export function ChapterPicker() {
             onClick={() => { setChapter(c.number); setPickerOpen(false); navigate({ to: "/read" }); }}
             aria-current={chapter === c.number ? "true" : undefined}
             className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
-              chapter === c.number ? "bg-event-soft text-event" : "hover:bg-muted")}>
-            <span className={cn("w-6 text-right text-sm font-semibold tabular-nums", chapter === c.number ? "text-event" : "text-muted-foreground")}>{c.number}</span>
+              EXPERIMENTS.spine ? (chapter === c.number ? "bg-muted" : "hover:bg-muted") : chapter === c.number ? "bg-event-soft text-event" : "hover:bg-muted")}>
+            {EXPERIMENTS.spine && <span aria-hidden className="flex h-[18px] w-[7px] items-end"><span className={spineClass(c.number, chapter ?? 0, chapter ?? 0)} /></span>}
+            <span className={cn("w-6 text-right text-sm font-semibold tabular-nums", !EXPERIMENTS.spine && chapter === c.number ? "text-event" : "text-muted-foreground")}>{c.number}</span>
             <span className="font-medium">{c.title}</span>
           </button>
         ))}
       </div>
     </Modal>
+  );
+}
+
+/** Chapter spine (design-tasks/04): read chapters solid, yours taller in ribbon red, later ones hatched (locked). */
+export function spineClass(n: number, reached: number, current: number) {
+  return cn("block w-[7px] rounded-[2px] transition-[height,background-color] duration-300",
+    n === current ? "h-[18px] bg-ribbon"
+      : n <= reached ? "h-[14px] bg-foreground/70 group-hover:bg-foreground/85"
+      : "h-[14px] bg-[repeating-linear-gradient(135deg,var(--color-border)_0_2px,transparent_2px_4px)] ring-1 ring-inset ring-border");
+}
+
+/** The spine strip for the chapter heading; opens the chapter picker. */
+export function ChapterSpine({ reached, current, onClick }: { reached: number; current: number; onClick: () => void }) {
+  const locked = CHAPTERS.length - reached;
+  return (
+    <button onClick={onClick} title="Change chapter"
+      aria-label={`Chapter ${current} of ${CHAPTERS.length}${locked ? `, chapters ${reached + 1} to ${CHAPTERS.length} locked` : ""}. Change chapter`}
+      className="group mt-2 flex items-center gap-3 rounded-md text-left">
+      <span aria-hidden className="flex items-end gap-[3px]">
+        {CHAPTERS.map((c) => <span key={c.number} title={`${c.number}. ${c.title}`} className={spineClass(c.number, reached, current)} />)}
+      </span>
+      <span className="text-[13px] font-medium text-muted-foreground">
+        Chapter {current} of {CHAPTERS.length}
+        {locked > 0 && <span className="text-muted-foreground/80"> · {locked} locked</span>}
+      </span>
+    </button>
   );
 }
 
