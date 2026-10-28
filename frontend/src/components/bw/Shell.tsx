@@ -2,7 +2,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen, ChevronDown, Moon, Sun } from "lucide-react";
 import type { ReactNode } from "react";
 import { BOOK, CHAPTERS } from "@/data/bookworm";
-import { EXPERIMENTS } from "@/lib/experiments";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Modal } from "./ui";
@@ -19,9 +18,9 @@ export function ChapterPicker() {
             onClick={() => { setChapter(c.number); setPickerOpen(false); navigate({ to: "/read" }); }}
             aria-current={chapter === c.number ? "true" : undefined}
             className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
-              EXPERIMENTS.spine ? (chapter === c.number ? "bg-muted" : "hover:bg-muted") : chapter === c.number ? "bg-event-soft text-event" : "hover:bg-muted")}>
-            {EXPERIMENTS.spine && <span aria-hidden className="flex h-[18px] w-[7px] items-end"><span className={spineClass(c.number, chapter ?? 0, chapter ?? 0)} /></span>}
-            <span className={cn("w-6 text-right text-sm font-semibold tabular-nums", !EXPERIMENTS.spine && chapter === c.number ? "text-event" : "text-muted-foreground")}>{c.number}</span>
+              chapter === c.number ? "bg-muted" : "hover:bg-muted")}>
+            <span aria-hidden className="flex h-[18px] w-[7px] items-end"><span className={spineClass(c.number, chapter ?? 0, chapter ?? 0)} /></span>
+            <span className="w-6 text-right text-sm font-semibold tabular-nums text-muted-foreground">{c.number}</span>
             <span className="font-medium">{c.title}</span>
           </button>
         ))}

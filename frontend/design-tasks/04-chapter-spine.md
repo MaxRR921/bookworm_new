@@ -1,7 +1,7 @@
 # 04 · Chapter progress spine
 
-**Status:** testing
-**Flag:** `EXPERIMENTS.spine` in `src/lib/experiments.ts`
+**Status:** keep (done)
+**Flag:** removed (the spine is now the default)
 **Impeccable command:** `delight`
 
 ## Idea
@@ -18,8 +18,6 @@ The text reads "Chapter 5 of 9 · 4 locked". Tapping the strip opens the chapter
 - [Light](shots/04-spine-light.png)
 - [Dark](shots/04-spine-dark.png)
 - [Chapter picker](shots/04-spine-picker.png)
-
-To compare with the base look, set `spine: false` in `src/lib/experiments.ts`.
 
 ## Notes
 <!-- your feedback here -->
