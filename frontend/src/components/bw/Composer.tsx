@@ -23,36 +23,37 @@ export function Composer({ open, onClose }: { open: boolean; onClose: () => void
   return (
     <Modal open={open} onClose={onClose} title="New post">
       <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder={`What's on your mind in Chapter ${ch}?`}
-        className="w-full resize-none rounded-2xl border border-input bg-background p-3 outline-none focus:border-event" />
-      <div className="mt-4 text-sm font-semibold">Attach to…</div>
-      <div className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">Events</div>
-      <div className="mt-1 flex flex-wrap gap-1.5">
+        className="w-full resize-none rounded-xl border border-input bg-background p-3 text-[15px] leading-6 placeholder:text-muted-foreground focus:border-ring focus:outline-2 focus:outline-offset-0 focus:outline-ring/30" />
+      <div className="mt-4 text-[13px] font-semibold">Moments</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
         {visibleEvents(ch).map((e) => (
           <button key={e.id} onClick={() => setEvents(toggle(events, e.id))}
-            className={cn("rounded-full border px-2.5 py-1 text-xs transition", events.includes(e.id) ? "border-event bg-event text-primary-foreground" : "border-border text-event hover:bg-event-soft")}>
+            aria-pressed={events.includes(e.id)}
+            className={cn("h-7 rounded-full px-3 text-xs font-semibold transition-colors", events.includes(e.id) ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>
             {e.title}
           </button>
         ))}
       </div>
-      <div className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">Characters</div>
-      <div className="mt-1 flex flex-wrap gap-1.5">
+      <div className="mt-4 text-[13px] font-semibold">Characters</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
         {visibleCharacters(ch).map((c) => (
           <button key={c.id} onClick={() => setChars(toggle(chars, c.id))}
-            className={cn("rounded-full border px-2.5 py-1 text-xs transition", chars.includes(c.id) ? "border-character bg-character text-primary-foreground" : "border-border text-character hover:bg-character-soft")}>
+            aria-pressed={chars.includes(c.id)}
+            className={cn("h-7 rounded-full px-3 text-xs font-semibold transition-colors", chars.includes(c.id) ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>
             {c.name}
           </button>
         ))}
       </div>
-      <label className="mt-4 flex cursor-pointer items-center gap-3 text-sm">
+      <label className="mt-5 flex cursor-pointer items-center gap-3 text-sm font-medium">
         <button role="switch" aria-checked={pred} onClick={() => setPred(!pred)}
-          className={cn("relative h-6 w-11 rounded-full transition", pred ? "bg-prediction" : "bg-muted")}>
+          className={cn("relative h-6 w-11 rounded-full transition", pred ? "bg-primary" : "bg-input")}>
           <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all", pred ? "left-5.5" : "left-0.5")} />
         </button>
         This is a prediction
       </label>
-      {!canPost && <p className="mt-3 text-xs text-muted-foreground">Write something and add at least one tag.</p>}
+      {!canPost && <p className="mt-3 text-xs text-muted-foreground">Write something and pick at least one moment or character.</p>}
       <button disabled={!canPost} onClick={submit}
-        className="mt-4 w-full rounded-full bg-primary py-2.5 font-medium text-primary-foreground transition disabled:opacity-40">
+        className="mt-4 h-10 w-full rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40">
         Post
       </button>
     </Modal>

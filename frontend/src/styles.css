@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  /* One family carries everything; font-serif is kept as an alias so older call sites stay sans. */
+  --font-sans: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-sans);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -38,63 +39,76 @@
   --color-prediction: var(--prediction);
   --color-prediction-soft: var(--prediction-soft);
   --color-overlay: var(--overlay);
+  --color-ribbon: var(--ribbon);
+  --color-ribbon-foreground: var(--ribbon-foreground);
 }
 
 :root {
-  --radius: 0.875rem;
-  --background: oklch(0.977 0.009 80);
-  --foreground: oklch(0.25 0.025 50);
-  --card: oklch(0.993 0.005 80);
-  --card-foreground: oklch(0.25 0.025 50);
-  --popover: oklch(0.993 0.005 80);
-  --popover-foreground: oklch(0.25 0.025 50);
-  --primary: oklch(0.3 0.03 45);
-  --primary-foreground: oklch(0.977 0.009 80);
-  --secondary: oklch(0.94 0.014 75);
-  --secondary-foreground: oklch(0.3 0.03 45);
-  --muted: oklch(0.94 0.014 75);
-  --muted-foreground: oklch(0.52 0.025 55);
-  --accent: oklch(0.92 0.02 70);
-  --accent-foreground: oklch(0.3 0.03 45);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.9 0.016 70);
-  --input: oklch(0.9 0.016 70);
-  --ring: oklch(0.62 0.13 40);
-  --event: oklch(0.6 0.13 40);
-  --event-soft: oklch(0.93 0.04 45);
-  --character: oklch(0.58 0.07 145);
-  --character-soft: oklch(0.93 0.03 145);
-  --prediction: oklch(0.76 0.14 85);
-  --prediction-soft: oklch(0.95 0.06 90);
-  --overlay: oklch(0.2 0.02 50 / 45%);
+  --radius: 0.75rem;
+  /* Neutrals: one cool slate ramp. White content ground, a cooler grey layer for bars, pills and panels. */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.012 235);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.012 235);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.012 235);
+  --primary: oklch(0.49 0.17 258);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.962 0.005 235);
+  --secondary-foreground: oklch(0.21 0.012 235);
+  --muted: oklch(0.955 0.006 235);
+  --muted-foreground: oklch(0.49 0.02 235);
+  --accent: oklch(0.93 0.008 235);
+  --accent-foreground: oklch(0.21 0.012 235);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.915 0.007 235);
+  --input: oklch(0.88 0.008 235);
+  --ring: oklch(0.55 0.17 258);
+  /* The one accent: actions, selection, and the moment being followed. */
+  --event: oklch(0.49 0.17 258);
+  --event-soft: oklch(0.95 0.028 258);
+  --character: oklch(0.52 0.11 155);
+  --character-soft: oklch(0.95 0.035 155);
+  --prediction: oklch(0.72 0.15 75);
+  --prediction-soft: oklch(0.96 0.045 85);
+  --overlay: oklch(0.15 0.012 235 / 50%);
+  --avatar-bg: 0.92;
+  --avatar-fg: 0.38;
+  /* Silk bookmark ribbon: marks where you are (chapter, followed moment). Never decoration. */
+  --ribbon: oklch(0.5 0.17 22);
+  --ribbon-foreground: oklch(0.99 0 0);
 }
 
 .dark {
-  --background: oklch(0.19 0.012 55);
-  --foreground: oklch(0.93 0.012 80);
-  --card: oklch(0.235 0.014 55);
-  --card-foreground: oklch(0.93 0.012 80);
-  --popover: oklch(0.235 0.014 55);
-  --popover-foreground: oklch(0.93 0.012 80);
-  --primary: oklch(0.9 0.02 80);
-  --primary-foreground: oklch(0.2 0.012 55);
-  --secondary: oklch(0.28 0.014 55);
-  --secondary-foreground: oklch(0.93 0.012 80);
-  --muted: oklch(0.28 0.014 55);
-  --muted-foreground: oklch(0.68 0.02 70);
-  --accent: oklch(0.31 0.018 55);
-  --accent-foreground: oklch(0.93 0.012 80);
-  --border: oklch(0.33 0.015 55);
-  --input: oklch(0.33 0.015 55);
-  --ring: oklch(0.68 0.13 40);
-  --event: oklch(0.7 0.13 42);
-  --event-soft: oklch(0.32 0.05 42);
-  --character: oklch(0.72 0.08 145);
-  --character-soft: oklch(0.3 0.04 145);
-  --prediction: oklch(0.8 0.13 85);
-  --prediction-soft: oklch(0.32 0.05 85);
-  --overlay: oklch(0.05 0 0 / 60%);
+  --background: oklch(0.165 0.006 235);
+  --foreground: oklch(0.95 0.004 235);
+  --card: oklch(0.2 0.007 235);
+  --card-foreground: oklch(0.95 0.004 235);
+  --popover: oklch(0.2 0.007 235);
+  --popover-foreground: oklch(0.95 0.004 235);
+  --primary: oklch(0.7 0.14 258);
+  --primary-foreground: oklch(0.16 0.006 235);
+  --secondary: oklch(0.24 0.008 235);
+  --secondary-foreground: oklch(0.95 0.004 235);
+  --muted: oklch(0.24 0.008 235);
+  --muted-foreground: oklch(0.72 0.016 235);
+  --accent: oklch(0.29 0.01 235);
+  --accent-foreground: oklch(0.95 0.004 235);
+  --border: oklch(0.29 0.009 235);
+  --input: oklch(0.34 0.01 235);
+  --ring: oklch(0.7 0.14 258);
+  --event: oklch(0.74 0.13 258);
+  --event-soft: oklch(0.29 0.06 258);
+  --character: oklch(0.74 0.11 155);
+  --character-soft: oklch(0.29 0.05 155);
+  --prediction: oklch(0.8 0.14 80);
+  --prediction-soft: oklch(0.3 0.06 80);
+  --overlay: oklch(0.05 0 0 / 65%);
+  --avatar-bg: 0.34;
+  --avatar-fg: 0.88;
+  --ribbon: oklch(0.55 0.16 22);
+  --ribbon-foreground: oklch(0.99 0 0);
 }
 
 @layer base {
@@ -103,12 +117,32 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    font-feature-settings: "tnum" 0;
+    -webkit-font-smoothing: antialiased;
+    caret-color: var(--color-event);
+    scrollbar-color: var(--color-input) transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
-  h1, h2, h3 { font-family: var(--font-serif); }
+  h1, h2, h3 { letter-spacing: -0.015em; text-wrap: balance; }
+  ::selection { background-color: var(--color-event-soft); color: var(--color-foreground); }
+  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+  a { text-underline-offset: 3px; }
 }
 
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
+}
+
+/* Reading ribbon (design-tasks/01): the selected-moment ribbon unfurls from its left edge. */
+@keyframes ribbon-unfurl {
+  from { transform: scaleX(0.15); opacity: 0; }
+  60% { opacity: 1; }
+  80% { transform: scaleX(1.03); }
+  to { transform: none; }
+}
+@utility ribbon-unfurl {
+  transform-origin: left center;
+  animation: ribbon-unfurl 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  @media (prefers-reduced-motion: reduce) { animation: none; }
 }

@@ -1,8 +1,8 @@
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Post } from "@/data/bookworm";
 import { cn } from "@/lib/utils";
-import { PostCard } from "./PostCard";
+import { ThreadPost } from "./Thread";
 import { eventById } from "./ui";
 
 // full: normal feed. rise: every post shrinks into a compact grid. merged: one stacked, expandable card per moment.
@@ -89,16 +89,16 @@ export function MomentsFeed({ posts, compact, tags, showChapter, onPick }: {
   });
 
   return (
-    <div ref={list} className={cn("relative [overflow-anchor:none]", phase === "rise" ? "grid grid-cols-2 gap-2" : phase === "merged" ? "space-y-3" : "space-y-4")}>
+    <div ref={list} className={cn("relative [overflow-anchor:none]", phase === "rise" ? "grid grid-cols-2 gap-2" : phase === "merged" ? "space-y-3" : "divide-y divide-border")}>
       {phase === "full" && posts.map((p) => (
-        <div key={p.id} data-flip={p.id}><PostCard post={p} showChapter={showChapter(p)} tags={tags} thread /></div>
+        <div key={p.id} data-flip={p.id}><ThreadPost post={p} showChapter={showChapter(p)} tags={tags} onTag={onPick} /></div>
       ))}
 
       {phase === "rise" && posts.map((p) => (
-        <div key={p.id} data-flip={p.id} data-to={primary(p)} className="relative rounded-xl border bg-card p-2.5 shadow-sm">
-          <div className="truncate text-[11px] font-medium text-event">◆ {title(primary(p))}</div>
-          <p className="mt-1 line-clamp-2 text-xs leading-snug">{p.body}</p>
-          <div className="mt-1 text-[11px] text-muted-foreground">{p.user}</div>
+        <div key={p.id} data-flip={p.id} data-to={primary(p)} className="relative rounded-xl border border-border bg-card p-3">
+          <div className="truncate text-xs font-semibold">{title(primary(p))}</div>
+          <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-foreground/80">{p.body}</p>
+          <div className="mt-1.5 text-xs text-muted-foreground">{p.user}</div>
         </div>
       ))}
 
@@ -107,29 +107,30 @@ export function MomentsFeed({ posts, compact, tags, showChapter, onPick }: {
         return (
           <div key={c.id} data-flip={`m:${c.id}`} className="relative">
             {/* Stacked edges show how many posts merged into this card. */}
-            {c.posts.length > 2 && <div aria-hidden className="absolute inset-x-4 -bottom-2.5 h-full rounded-xl border bg-card/50" />}
-            {c.posts.length > 1 && <div aria-hidden className="absolute inset-x-2 -bottom-1.5 h-full rounded-xl border bg-card/80" />}
-            <div className="relative rounded-xl border bg-card shadow-sm">
+            {c.posts.length > 2 && <div aria-hidden className="absolute inset-x-4 -bottom-2.5 h-full rounded-xl border border-border bg-muted" />}
+            {c.posts.length > 1 && <div aria-hidden className="absolute inset-x-2 -bottom-1.5 h-full rounded-xl border border-border bg-card" />}
+            <div className={cn("relative overflow-hidden rounded-xl border bg-card transition-colors", isOpen ? "border-input" : "border-border")}>
               <button onClick={() => setOpen(isOpen ? null : c.id)} aria-expanded={isOpen}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left">
+                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60">
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-event">◆ {title(c.id)}</span>
-                  <span className="block truncate text-xs text-muted-foreground">"{c.posts[0]!.body}"</span>
+                  <span className="block truncate text-[15px] font-semibold">{title(c.id)}</span>
+                  <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">{c.posts[0]!.user}: {c.posts[0]!.body}</span>
                 </span>
-                <span className="shrink-0 rounded-full bg-event-soft px-2 py-0.5 text-xs font-semibold text-event">
+                <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold tabular-nums text-muted-foreground">
                   {c.posts.length} {c.posts.length === 1 ? "post" : "posts"}
                 </span>
-                <ChevronDown size={16} className={cn("shrink-0 text-muted-foreground transition-transform duration-300", isOpen && "rotate-180")} />
+                <ChevronDown size={18} className={cn("shrink-0 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
               </button>
-              <div className={cn("grid transition-all duration-300 ease-out", isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
+              <div className={cn("grid transition-[grid-template-rows] duration-200 ease-out", isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
                 <div className="overflow-hidden" inert={!isOpen}>
-                  <div className="max-h-[60vh] space-y-3 overflow-y-auto border-t p-3">
+                  <div className="max-h-[60vh] overflow-y-auto border-t border-border px-4 pt-2">
                     {c.id && (
-                      <button onClick={() => onPick(c.id)} className="text-xs font-medium text-event hover:underline">
-                        Show only this moment in the feed →
+                      <button onClick={() => onPick(c.id)}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-full bg-event-soft px-3 text-[13px] font-semibold text-event transition-colors hover:bg-event hover:text-primary-foreground">
+                        Show only this moment in the feed <ArrowRight size={14} />
                       </button>
                     )}
-                    {c.posts.map((p) => <PostCard key={p.id} post={p} showChapter={showChapter(p)} />)}
+                    <div className="divide-y divide-border">{c.posts.map((p) => <ThreadPost key={p.id} post={p} showChapter={showChapter(p)} tags />)}</div>
                   </div>
                 </div>
               </div>

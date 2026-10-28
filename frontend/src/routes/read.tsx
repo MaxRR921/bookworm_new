@@ -52,19 +52,19 @@ function ChapterView() {
         const my = s.votes[postId];
         const right = my && ((my === "agree") === (p.prediction!.outcome === "correct"));
         return (
-          <div key={postId} className="relative mb-4 rounded-2xl border-2 border-prediction bg-prediction-soft p-4 animate-in zoom-in-95 fade-in duration-500">
+          <div key={postId} className="relative mb-4 rounded-xl border border-prediction/40 bg-prediction-soft p-4 animate-in fade-in duration-200">
             <button onClick={() => s.dismissResolved(postId)} className="absolute right-3 top-3 text-muted-foreground" aria-label="Dismiss"><X size={16} /></button>
             <div className="flex items-center gap-2 text-sm font-semibold"><Sparkles size={16} /> A prediction resolved!</div>
-            <p className="mt-1 font-serif text-lg">"{p.body.replace(/^Prediction:\s*/, "").split(/[.!?]/)[0]}" — <strong>{p.prediction!.outcome === "correct" ? "Correct" : "Incorrect"}</strong>.</p>
+            <p className="mt-1 text-[15px] font-medium">"{p.body.replace(/^Prediction:\s*/, "").split(/[.!?]/)[0]}" — <strong>{p.prediction!.outcome === "correct" ? "Correct" : "Incorrect"}</strong>.</p>
             <p className="text-sm text-muted-foreground">{p.prediction!.agree}% of readers agreed.{my && (right ? " 🎉 You called it!" : " You voted the other way this time.")}</p>
           </div>
         );
       })}
 
-      <section className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-event">Chapter {vc}</p>
-        <h1 className="mt-1 text-4xl font-semibold">{info.title}</h1>
-        <p className="mt-3 leading-relaxed text-muted-foreground">{info.recap}</p>
+      <section className="mb-5">
+        <h1 className="text-[28px] font-bold leading-tight">{info.title}</h1>
+        <p className="mt-1 text-[13px] font-medium text-muted-foreground">Chapter {vc} of {CHAPTERS.length}</p>
+        <p className="mt-3 max-w-[68ch] text-[15px] leading-6 text-foreground/80">{info.recap}</p>
       </section>
 
       <DiscussionCard compact={compact} onCompact={setCompact}
@@ -72,17 +72,22 @@ function ChapterView() {
 
       <MomentsFeed posts={feed} compact={compact} tags={allScope} showChapter={(p) => allScope || !!p.hindsight}
         onPick={(id) => { setSelEvent(id); setCompact(false); }} />
-      {feed.length === 0 && <p className="py-8 text-center text-muted-foreground">No posts here yet — start the conversation.</p>}
+      {feed.length === 0 && (
+        <div className="py-12 text-center">
+          <p className="font-semibold">No posts for this chapter yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">Be the first to say what you made of it.</p>
+        </div>
+      )}
 
       {locked > 0 && (
-        <p className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <p className="mt-6 flex items-center justify-center gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground">
           <Lock size={14} /> {locked} discussions from later chapters are waiting for you.
         </p>
       )}
 
-      <button onClick={() => setComposer(true)}
-        className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-event px-5 py-3 font-medium text-primary-foreground shadow-xl transition hover:scale-105 active:scale-95">
-        <Plus size={18} /> New post
+      <button onClick={() => setComposer(true)} aria-label="New post"
+        className="fixed bottom-5 right-5 z-40 inline-flex h-12 w-12 items-center justify-center gap-1.5 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-[0_4px_14px_-2px_rgb(0_0_0/0.25)] transition-colors hover:bg-primary/90 sm:bottom-6 sm:right-6 sm:h-11 sm:w-auto sm:pl-4 sm:pr-5">
+        <Plus size={20} strokeWidth={2.25} /> <span className="hidden sm:inline">New post</span>
       </button>
       <Composer open={composer} onClose={() => setComposer(false)} />
     </>

@@ -27,7 +27,7 @@ export function UserAvatar({ name, size = 36 }: { name: string; size?: number })
   const hue = [...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 360;
   return (
     <span className="inline-flex shrink-0 items-center justify-center rounded-full text-xs font-semibold uppercase"
-      style={{ width: size, height: size, background: `oklch(0.9 0.04 ${hue})`, color: `oklch(0.35 0.06 ${hue})` }}>
+      style={{ width: size, height: size, background: `oklch(var(--avatar-bg) 0.05 ${hue})`, color: `oklch(var(--avatar-fg) 0.08 ${hue})` }}>
       {name.slice(0, 2)}
     </span>
   );
@@ -38,8 +38,8 @@ export function EventPill({ id }: { id: string }) {
   if (!e) return null;
   return (
     <Link to="/event/$eventId" params={{ eventId: id }} onClick={(ev) => ev.stopPropagation()}
-      className="inline-flex items-center gap-1 rounded-full bg-event-soft px-2.5 py-0.5 text-xs font-medium text-event transition hover:brightness-95">
-      ◆ {e.title}
+      className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent">
+      {e.title}
     </Link>
   );
 }
@@ -49,7 +49,7 @@ export function CharPill({ id }: { id: CharacterId }) {
   return (
     <Link to="/character/$characterId" params={{ characterId: id }} onClick={(ev) => ev.stopPropagation()}
       className="inline-flex items-center gap-1 rounded-full bg-character-soft px-2.5 py-0.5 text-xs font-medium text-character transition hover:brightness-95">
-      ● {c.name}
+      {c.name}
     </Link>
   );
 }
@@ -63,11 +63,12 @@ export function ReactionBar({ id, counts, large }: { id: string; counts: Record<
         const on = mine.includes(r.key);
         return (
           <button key={r.key} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleReaction(id, r.key); }}
-            className={cn("inline-flex items-center gap-1 rounded-full border transition-all active:scale-90",
-              large ? "px-4 py-2 text-lg" : "px-2 py-0.5 text-xs",
-              on ? "border-event bg-event-soft" : "border-border bg-card hover:bg-muted")}>
+            aria-pressed={on}
+            className={cn("inline-flex items-center gap-1 rounded-full font-semibold transition-colors active:scale-95",
+              large ? "px-4 py-2 text-lg" : "h-7 min-w-9 justify-center px-2.5 text-xs",
+              on ? "bg-event-soft text-event" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground")}>
             <span>{r.emoji}</span>
-            <span className="tabular-nums text-muted-foreground">{counts[r.key] + (on ? 1 : 0)}</span>
+            {counts[r.key] + (on ? 1 : 0) > 0 && <span className="tabular-nums">{counts[r.key] + (on ? 1 : 0)}</span>}
           </button>
         );
       })}
@@ -78,10 +79,10 @@ export function ReactionBar({ id, counts, large }: { id: string; counts: Record<
 export function Modal({ open, onClose, children, title }: { open: boolean; onClose: () => void; children: ReactNode; title: string }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay backdrop-blur-sm animate-in fade-in sm:items-center" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 shadow-2xl animate-in slide-in-from-bottom-8 duration-300 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="text-2xl font-semibold">{title}</h2>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay animate-in fade-in duration-150 sm:items-center" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-card p-5 shadow-[0_12px_40px_-8px_rgb(0_0_0/0.25)] animate-in slide-in-from-bottom-4 duration-200 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <h2 className="text-lg font-bold">{title}</h2>
           <button onClick={onClose} className="rounded-full p-1.5 text-muted-foreground hover:bg-muted" aria-label="Close"><X size={18} /></button>
         </div>
         {children}
